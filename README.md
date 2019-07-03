@@ -6,6 +6,8 @@ This is a variantion of `haxe.format.JsonParser` that gives the user full contro
 
 **STATUS**: work in progress, subject to random changes, more docs to come
 
+API reference: https://nadako.github.io/hijson/
+
 ## Differences to other libraries:
 
  * `haxe.Json`/`haxe.format.JsonParser`
