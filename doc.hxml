@@ -6,4 +6,4 @@
 
 --next
 
--cmd haxelib run dox -o doc/out -i doc --title "Inverted JSON parser for Haxe" --toplevel-package hijson -D source-path https://github.com/nadako/hijson/blob/master/
+-cmd haxelib run dox -o doc/out -i doc --title "Inverted JSON parser for Haxe" --toplevel-package hijson -D source-path https://github.com/nadako/hijson/blob/master/src
