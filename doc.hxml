@@ -1,0 +1,9 @@
+-cp src
+--macro include("hijson")
+--interp
+-D doc-gen
+-xml doc/interp.xml
+
+--next
+
+-cmd haxelib run dox -o doc/out -i doc --title "Inverted JSON parser for Haxe" --toplevel-package hijson -D source-path https://github.com/nadako/hijson/blob/master/
