@@ -1,0 +1,11 @@
+language: haxe
+
+haxe:
+ - 4.0.0-rc.3
+ - development
+
+install:
+ - haxelib install utest
+
+script:
+ - haxe test.hxml

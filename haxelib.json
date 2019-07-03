@@ -1,0 +1,11 @@
+{
+	"name": "hijson",
+	"description": "Inverted JSON parser",
+	"license": "MIT",
+	"version": "0.1.0",
+	"releasenote": "Initial release",
+	"contributors": ["nadako"],
+	"tags": ["json", "parser", "cross"],
+	"url": "https://github.com/nadako/hijson",
+	"classPath": "src"
+}
