@@ -3,8 +3,12 @@ import utest.Assert.*;
 import hijson.Parser;
 import hijson.BaseConsumer;
 
+private class ConstructibleBaseConsumer<T> extends BaseConsumer<T> {
+	public function new() {}
+}
+
 class TestBaseConsumer extends utest.Test {
-	static final consumer = new BaseConsumer();
+	static final baseConsumer = new ConstructibleBaseConsumer();
 
 	static function raises(expectedError:Any, func:()->Void, ?pos:haxe.PosInfos) {
 		try {
@@ -17,27 +21,27 @@ class TestBaseConsumer extends utest.Test {
 	}
 
 	function testString() {
-		raises("Unexpected string", () -> consumer.consumeString("hi"));
+		raises("Unexpected string", () -> baseConsumer.consumeString("hi"));
 	}
 
 	function testNumber() {
-		raises("Unexpected number", () -> consumer.consumeNumber("1"));
+		raises("Unexpected number", () -> baseConsumer.consumeNumber("1"));
 	}
 
 	function testBool() {
-		raises("Unexpected boolean", () -> consumer.consumeBool(true));
+		raises("Unexpected boolean", () -> baseConsumer.consumeBool(true));
 	}
 
 	function testNull() {
-		raises("Unexpected null", () -> consumer.consumeNull());
+		raises("Unexpected null", () -> baseConsumer.consumeNull());
 	}
 
 	function testArray() {
-		raises("Unexpected array", () -> consumer.consumeArray());
+		raises("Unexpected array", () -> baseConsumer.consumeArray());
 	}
 
 	function testObject() {
-		raises("Unexpected object", () -> consumer.consumeObject());
+		raises("Unexpected object", () -> baseConsumer.consumeObject());
 	}
 
 	function testBoolConsumer() {

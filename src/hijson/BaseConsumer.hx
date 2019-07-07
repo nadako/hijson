@@ -7,8 +7,6 @@ import haxe.ds.IntMap;
 import hijson.Consumer;
 
 class BaseConsumer<T> implements Consumer<T> {
-	public function new() {}
-
 	public function consumeString(s:String):T {
 		throw "Unexpected string";
 	}
@@ -36,21 +34,25 @@ class BaseConsumer<T> implements Consumer<T> {
 
 class BoolConsumer extends BaseConsumer<Bool> {
 	public static final instance = new BoolConsumer();
+	function new() {}
 	override function consumeBool(b:Bool):Bool return b;
 }
 
 class StringConsumer extends BaseConsumer<String> {
 	public static final instance = new StringConsumer();
+	function new() {}
 	override function consumeString(s:String):String return s;
 }
 
 class FloatConsumer extends BaseConsumer<Float> {
 	public static final instance = new FloatConsumer();
+	function new() {}
 	override function consumeNumber(n:String):Float return Std.parseFloat(n);
 }
 
 class IntConsumer extends BaseConsumer<Int> {
 	public static final instance = new IntConsumer();
+	function new() {}
 	override function consumeNumber(n:String):Int {
 		return switch Std.parseInt(n) {
 			case null: throw "Unexpected non-integer number";
@@ -79,7 +81,6 @@ class StandardArrayConsumer<T> extends BaseConsumer<Array<T>> implements ArrayCo
 	var currentArray:Null<Array<T>>;
 
 	public function new(elementConsumer) {
-		super();
 		this.elementConsumer = elementConsumer;
 	}
 
@@ -102,7 +103,6 @@ class DynamicAccessConsumer<T> extends BaseConsumer<DynamicAccess<T>> implements
 	var currentObject:Null<DynamicAccess<T>>;
 
 	public function new(valueConsumer) {
-		super();
 		this.valueConsumer = valueConsumer;
 	}
 
@@ -125,7 +125,6 @@ class StringMapConsumer<T> extends BaseConsumer<StringMap<T>> implements ObjectC
 	var currentObject:Null<StringMap<T>>;
 
 	public function new(valueConsumer) {
-		super();
 		this.valueConsumer = valueConsumer;
 	}
 
@@ -148,7 +147,6 @@ class IntMapConsumer<T> extends BaseConsumer<IntMap<T>> implements ObjectConsume
 	var currentObject:Null<IntMap<T>>;
 
 	public function new(valueConsumer) {
-		super();
 		this.valueConsumer = valueConsumer;
 	}
 
