@@ -1,3 +1,5 @@
+import haxe.ds.Option;
+
 import utest.Assert.*;
 
 import hijson.Parser;
@@ -72,6 +74,12 @@ class TestBaseConsumer extends utest.Test {
 		var consumer = new NullConsumer(IntConsumer.instance);
 		equals(1, consumer.consumeNumber("1"));
 		isNull(consumer.consumeNull());
+	}
+
+	function testOptionConsumer() {
+		var consumer = new OptionConsumer(IntConsumer.instance);
+		same(Some(1), consumer.consumeNumber("1"));
+		equals(None, consumer.consumeNull());
 	}
 
 	function testStandardArrayConsumer() {

@@ -1,6 +1,7 @@
 package hijson;
 
 import haxe.DynamicAccess;
+import haxe.ds.Option;
 import haxe.ds.StringMap;
 import haxe.ds.IntMap;
 
@@ -94,6 +95,25 @@ class NullConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<N
 	public function consumeObject():TObjectContext return consumer.consumeObject();
 	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void consumer.addObjectField(context, name, parser);
 	public function finalizeObject(context:TObjectContext):TResult return consumer.finalizeObject(context);
+}
+
+class OptionConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<Option<TResult>, TArrayContext, TObjectContext> {
+	final consumer:Consumer<TResult, TArrayContext, TObjectContext>;
+
+	public function new(consumer) {
+		this.consumer = consumer;
+	}
+
+	public function consumeString(s:String):Option<TResult> return Some(consumer.consumeString(s));
+	public function consumeNumber(n:String):Option<TResult> return Some(consumer.consumeNumber(n));
+	public function consumeBool(b:Bool):Option<TResult> return Some(consumer.consumeBool(b));
+	public function consumeNull():Option<TResult> return None;
+	public function consumeArray():TArrayContext return consumer.consumeArray();
+	public function addArrayElement(context:TArrayContext, parser:Parser):Void consumer.addArrayElement(context, parser);
+	public function finalizeArray(context:TArrayContext):Option<TResult> return Some(consumer.finalizeArray(context));
+	public function consumeObject():TObjectContext return consumer.consumeObject();
+	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void consumer.addObjectField(context, name, parser);
+	public function finalizeObject(context:TObjectContext):Option<TResult> return Some(consumer.finalizeObject(context));
 }
 
 class ArrayConsumer<TElement, TElementArrayContext, TElementObjectContext> extends BaseConsumer<Array<TElement>, Array<TElement>, Void> {
