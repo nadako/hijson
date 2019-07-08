@@ -1,8 +1,9 @@
 package hijson;
 
+import haxe.DynamicAccess;
 import hijson.Consumer;
 
-class DynamicConsumer implements Consumer<Any> {
+class DynamicConsumer implements Consumer<Any, Array<Any>, DynamicAccess<Any>> {
 	function new() {}
 
 	public static final instance = new DynamicConsumer();
@@ -25,48 +26,27 @@ class DynamicConsumer implements Consumer<Any> {
 		return null;
 	}
 
-	public function consumeArray():DynamicArrayConsumer {
-		return DynamicArrayConsumer.instance;
+	public function consumeArray():Array<Any> {
+		return [];
 	}
 
-	public function consumeObject():DynamicObjectConsumer {
-		return DynamicObjectConsumer.instance;
-	}
-}
-
-
-class DynamicArrayConsumer implements ArrayConsumer<Any> {
-	var currentArray:Null<Array<Any>>;
-	function new() {}
-
-	public static final instance = new DynamicArrayConsumer();
-
-	public function addElement(parser:Parser) {
-		if (currentArray == null) currentArray = [];
-		currentArray.push(parser.parseValue(DynamicConsumer.instance));
+	public function addArrayElement(array:Array<Any>, parser:Parser) {
+		array.push(parser.parseValue(this));
 	}
 
-	public function complete():Any {
-		var result = currentArray;
-		currentArray = null;
-		return result;
-	}
-}
-
-class DynamicObjectConsumer implements ObjectConsumer<Any> {
-	var currentObject:Null<haxe.DynamicAccess<Any>>;
-	function new() {}
-
-	public static final instance = new DynamicObjectConsumer();
-
-	public function addField(name:String, parser:Parser):Void {
-		if (currentObject == null) currentObject = {};
-		currentObject.set(name, parser.parseValue(DynamicConsumer.instance));
+	public function finalizeArray(array:Array<Any>):Any {
+		return array;
 	}
 
-	public function complete():Any {
-		var result = currentObject;
-		currentObject = null;
-		return result;
+	public function consumeObject():DynamicAccess<Any> {
+		return {};
+	}
+
+	public function addObjectField(object:DynamicAccess<Any>, name:String, parser:Parser):Void {
+		object.set(name, parser.parseValue(this));
+	}
+
+	public function finalizeObject(object:DynamicAccess<Any>):Any {
+		return object;
 	}
 }

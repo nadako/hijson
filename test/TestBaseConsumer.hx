@@ -3,7 +3,7 @@ import utest.Assert.*;
 import hijson.Parser;
 import hijson.BaseConsumer;
 
-private class ConstructibleBaseConsumer<T> extends BaseConsumer<T> {
+private class ConstructibleBaseConsumer extends BaseConsumer<Void, Void, Void> {
 	public function new() {}
 }
 
@@ -75,7 +75,7 @@ class TestBaseConsumer extends utest.Test {
 	}
 
 	function testStandardArrayConsumer() {
-		var consumer = new StandardArrayConsumer(IntConsumer.instance);
+		var consumer = new ArrayConsumer(IntConsumer.instance);
 		same([1,2,3], Parser.parse("[1,2,3]", consumer));
 		raises("Unexpected string", () -> Parser.parse('[1,2,3,"hi"]', consumer));
 	}

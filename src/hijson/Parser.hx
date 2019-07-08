@@ -1,7 +1,7 @@
 package hijson;
 
 class Parser {
-	public static inline function parse<T>(jsonString:String, consumer:Consumer<T>):T {
+	public static inline function parse<TResult, TArrayContext, TObjectContext>(jsonString:String, consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
 		return new Parser(jsonString).doParse(consumer);
 	}
 
@@ -13,7 +13,7 @@ class Parser {
 		this.pos = 0;
 	}
 
-	function doParse<T>(consumer:Consumer<T>):T {
+	function doParse<TResult, TArrayContext, TObjectContext>(consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
 		var result = parseValue(consumer);
 		var c;
 		while (!StringTools.isEof(c = nextChar())) {
@@ -27,7 +27,7 @@ class Parser {
 		return result;
 	}
 
-	public function parseValue<T>(consumer:Consumer<T>):T {
+	public function parseValue<TResult, TArrayContext, TObjectContext>(consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
 		while (true) {
 			var c = nextChar();
 			switch (c) {
@@ -43,11 +43,11 @@ class Parser {
 							case '}'.code:
 								if (field != null || comma == false)
 									invalidChar();
-								return obj.complete();
+								return consumer.finalizeObject(obj);
 							case ':'.code:
 								if (field == null)
 									invalidChar();
-								obj.addField(field, this);
+								consumer.addObjectField(obj, field, this);
 								field = null;
 								comma = true;
 							case ','.code:
@@ -68,13 +68,13 @@ class Parser {
 							// loop
 							case ']'.code:
 								if (comma == false) invalidChar();
-								return arr.complete();
+								return consumer.finalizeArray(arr);
 							case ','.code:
 								if (comma) comma = false else invalidChar();
 							default:
 								if (comma) invalidChar();
 								pos--;
-								arr.addElement(this);
+								consumer.addArrayElement(arr, this);
 								comma = true;
 						}
 					}

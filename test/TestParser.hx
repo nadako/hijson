@@ -32,7 +32,7 @@ class TestParser extends utest.Test {
 	}
 }
 
-private class TestConsumer implements Consumer<String> {
+private class TestConsumer implements Consumer<String, Array<String>, Array<{key:String, value:String}>> {
 	public function new() {}
 
 	public function consumeString(s:String):String {
@@ -51,33 +51,26 @@ private class TestConsumer implements Consumer<String> {
 		return "<null>";
 	}
 
-	public function consumeArray():ArrayConsumer<String> {
-		return new TestArrayConsumer();
+	public function consumeArray():Array<String> {
+		return [];
 	}
 
-	public function consumeObject():ObjectConsumer<String> {
-		return new TestObjectConsumer();
+	public function addArrayElement(acc:Array<String>, parser:Parser) {
+		acc.push(parser.parseValue(this));
 	}
-}
 
-private class TestArrayConsumer implements ArrayConsumer<String> {
-	final acc:Array<String> = [];
-	public function new() {}
-	public function addElement(parser:Parser) {
-		acc.push(parser.parseValue(new TestConsumer()));
-	}
-	public function complete():String {
+	public function finalizeArray(acc:Array<String>):String {
 		return "<array>" + acc.join(",");
 	}
-}
 
-private class TestObjectConsumer implements ObjectConsumer<String> {
-	final acc:Array<{key:String, value:String}> = [];
-	public function new() {}
-	public function addField(name:String, parser:Parser) {
-		acc.push({key: name, value: parser.parseValue(new TestConsumer())});
+	public function consumeObject():Array<{key:String, value:String}> {
+		return [];
 	}
-	public function complete():String {
+
+	public function addObjectField(acc:Array<{key:String, value:String}>, name:String, parser:Parser) {
+		acc.push({key: name, value: parser.parseValue(this)});
+	}
+	public function finalizeObject(acc:Array<{key:String, value:String}>):String {
 		var buf = new StringBuf(), first = true;
 		for (item in acc) {
 			if (first) first = false else buf.add(",");

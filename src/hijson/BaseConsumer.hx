@@ -6,51 +6,67 @@ import haxe.ds.IntMap;
 
 import hijson.Consumer;
 
-class BaseConsumer<T> implements Consumer<T> {
-	public function consumeString(s:String):T {
+class BaseConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<TResult, TArrayContext, TObjectContext> {
+	public function consumeString(s:String):TResult {
 		throw "Unexpected string";
 	}
 
-	public function consumeNumber(n:String):T {
+	public function consumeNumber(n:String):TResult {
 		throw "Unexpected number";
 	}
 
-	public function consumeBool(b:Bool):T {
+	public function consumeBool(b:Bool):TResult {
 		throw "Unexpected boolean";
 	}
 
-	public function consumeNull():T {
+	public function consumeNull():TResult {
 		throw "Unexpected null";
 	}
 
-	public function consumeArray():ArrayConsumer<T> {
+	public function consumeArray():TArrayContext {
 		throw "Unexpected array";
 	}
 
-	public function consumeObject():ObjectConsumer<T> {
+	public function addArrayElement(context:TArrayContext, parser:Parser):Void {
+		throw "Not implemented";
+	}
+
+	public function finalizeArray(context:TArrayContext):TResult {
+		throw "Not implemented";
+	}
+
+	public function consumeObject():TObjectContext {
 		throw "Unexpected object";
+	}
+
+	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void {
+		throw "Not implemented";
+	}
+
+	public function finalizeObject(context:TObjectContext):TResult {
+		throw "Not implemented";
 	}
 }
 
-class BoolConsumer extends BaseConsumer<Bool> {
+class BoolConsumer extends BaseConsumer<Bool, Void, Void> {
 	public static final instance = new BoolConsumer();
 	function new() {}
 	override function consumeBool(b:Bool):Bool return b;
 }
 
-class StringConsumer extends BaseConsumer<String> {
+class StringConsumer extends BaseConsumer<String, Void, Void> {
 	public static final instance = new StringConsumer();
 	function new() {}
 	override function consumeString(s:String):String return s;
 }
 
-class FloatConsumer extends BaseConsumer<Float> {
+class FloatConsumer extends BaseConsumer<Float, Void, Void> {
 	public static final instance = new FloatConsumer();
 	function new() {}
 	override function consumeNumber(n:String):Float return Std.parseFloat(n);
 }
 
-class IntConsumer extends BaseConsumer<Int> {
+class IntConsumer extends BaseConsumer<Int, Void, Void> {
 	public static final instance = new IntConsumer();
 	function new() {}
 	override function consumeNumber(n:String):Int {
@@ -61,107 +77,103 @@ class IntConsumer extends BaseConsumer<Int> {
 	}
 }
 
-class NullConsumer<T> implements Consumer<Null<T>> {
-	final consumer:Consumer<T>;
+class NullConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<Null<TResult>, TArrayContext, TObjectContext> {
+	final consumer:Consumer<TResult, TArrayContext, TObjectContext>;
 
 	public function new(consumer) {
 		this.consumer = consumer;
 	}
 
-	public function consumeString(s:String):Null<T> return consumer.consumeString(s);
-	public function consumeNumber(n:String):Null<T> return consumer.consumeNumber(n);
-	public function consumeBool(b:Bool):Null<T> return consumer.consumeBool(b);
-	public function consumeNull():Null<T> return null;
-	public function consumeArray():ArrayConsumer<Null<T>> return consumer.consumeArray();
-	public function consumeObject():ObjectConsumer<Null<T>> return consumer.consumeObject();
+	public function consumeString(s:String):Null<TResult> return consumer.consumeString(s);
+	public function consumeNumber(n:String):Null<TResult> return consumer.consumeNumber(n);
+	public function consumeBool(b:Bool):Null<TResult> return consumer.consumeBool(b);
+	public function consumeNull():Null<TResult> return null;
+	public function consumeArray():TArrayContext return consumer.consumeArray();
+	public function addArrayElement(context:TArrayContext, parser:Parser):Void consumer.addArrayElement(context, parser);
+	public function finalizeArray(context:TArrayContext):TResult return consumer.finalizeArray(context);
+	public function consumeObject():TObjectContext return consumer.consumeObject();
+	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void consumer.addObjectField(context, name, parser);
+	public function finalizeObject(context:TObjectContext):TResult return consumer.finalizeObject(context);
 }
 
-class StandardArrayConsumer<T> extends BaseConsumer<Array<T>> implements ArrayConsumer<Array<T>> {
-	final elementConsumer:Consumer<T>;
-	var currentArray:Null<Array<T>>;
+class ArrayConsumer<TElement, TElementArrayContext, TElementObjectContext> extends BaseConsumer<Array<TElement>, Array<TElement>, Void> {
+	final elementConsumer:Consumer<TElement, TElementArrayContext, TElementObjectContext>;
 
 	public function new(elementConsumer) {
 		this.elementConsumer = elementConsumer;
 	}
 
-	override function consumeArray():ArrayConsumer<Array<T>> return this;
-
-	public function addElement(parser:Parser):Void {
-		if (currentArray == null) currentArray = [];
-		currentArray.push(parser.parseValue(elementConsumer));
+	override function consumeArray():Array<TElement> {
+		return [];
 	}
 
-	public function complete():Array<T> {
-		var result = currentArray;
-		currentArray = null;
-		return result;
+	override function addArrayElement(array:Array<TElement>, parser:Parser):Void {
+		array.push(parser.parseValue(elementConsumer));
+	}
+
+	override function finalizeArray(array:Array<TElement>):Array<TElement> {
+		return array;
 	}
 }
 
-class DynamicAccessConsumer<T> extends BaseConsumer<DynamicAccess<T>> implements ObjectConsumer<DynamicAccess<T>> {
-	final valueConsumer:Consumer<T>;
-	var currentObject:Null<DynamicAccess<T>>;
+class DynamicAccessConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<DynamicAccess<TValue>, Void, DynamicAccess<TValue>> {
+	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
 
-	override function consumeObject():ObjectConsumer<DynamicAccess<T>> return this;
-
-	public function addField(name:String, parser:Parser):Void {
-		if (currentObject == null) currentObject = {};
-		currentObject.set(name, parser.parseValue(valueConsumer));
+	override function consumeObject():DynamicAccess<TValue> {
+		return {};
 	}
 
-	public function complete():DynamicAccess<T> {
-		var result = currentObject;
-		currentObject = null;
-		return result;
+	override function addObjectField(object:DynamicAccess<TValue>, name:String, parser:Parser):Void {
+		object.set(name, parser.parseValue(valueConsumer));
+	}
+
+	override function finalizeObject(object:DynamicAccess<TValue>):DynamicAccess<TValue> {
+		return object;
 	}
 }
 
-class StringMapConsumer<T> extends BaseConsumer<StringMap<T>> implements ObjectConsumer<StringMap<T>> {
-	final valueConsumer:Consumer<T>;
-	var currentObject:Null<StringMap<T>>;
+class StringMapConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<StringMap<TValue>, Void, StringMap<TValue>> {
+	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
 
-	override function consumeObject():ObjectConsumer<StringMap<T>> return this;
-
-	public function addField(name:String, parser:Parser):Void {
-		if (currentObject == null) currentObject = new StringMap<T>();
-		currentObject.set(name, parser.parseValue(valueConsumer));
+	override function consumeObject():StringMap<TValue> {
+		return new StringMap();
 	}
 
-	public function complete():StringMap<T> {
-		var result = currentObject;
-		currentObject = null;
-		return result;
+	override function addObjectField(object:StringMap<TValue>, name:String, parser:Parser):Void {
+		object.set(name, parser.parseValue(valueConsumer));
+	}
+
+	override function finalizeObject(object:StringMap<TValue>):StringMap<TValue> {
+		return object;
 	}
 }
 
-class IntMapConsumer<T> extends BaseConsumer<IntMap<T>> implements ObjectConsumer<IntMap<T>> {
-	final valueConsumer:Consumer<T>;
-	var currentObject:Null<IntMap<T>>;
+class IntMapConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<IntMap<TValue>, Void, IntMap<TValue>> {
+	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
 
-	override function consumeObject():ObjectConsumer<IntMap<T>> return this;
+	override function consumeObject():IntMap<TValue> {
+		return new IntMap();
+	}
 
-	public function addField(name:String, parser:Parser):Void {
+	override function addObjectField(object:IntMap<TValue>, name:String, parser:Parser):Void {
 		var key = Std.parseInt(name);
 		if (key == null) throw "Invalid object key for IntMap";
-		if (currentObject == null) currentObject = new IntMap<T>();
-		currentObject.set(key, parser.parseValue(valueConsumer));
+		object.set(key, parser.parseValue(valueConsumer));
 	}
 
-	public function complete():IntMap<T> {
-		var result = currentObject;
-		currentObject = null;
-		return result;
+	override function finalizeObject(object:IntMap<TValue>):IntMap<TValue> {
+		return object;
 	}
 }
