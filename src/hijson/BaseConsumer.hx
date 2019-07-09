@@ -75,24 +75,46 @@ class BaseConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<T
 	}
 }
 
+/**
+	Standard Bool consumer. Produces Haxe Bool values from JSON boolean.
+
+	There's only a single instance of `BoolConsumer`, available via `BoolConsumer.instance`.
+**/
 class BoolConsumer extends BaseConsumer<Bool, Void, Void> {
 	public static final instance = new BoolConsumer();
 	function new() {}
 	override function consumeBool(b:Bool):Bool return b;
 }
 
+/**
+	Standard String consumer. Produces Haxe String values from JSON string.
+
+	There's only a single instance of `StringConsumer`, available via `StringConsumer.instance`.
+**/
 class StringConsumer extends BaseConsumer<String, Void, Void> {
 	public static final instance = new StringConsumer();
 	function new() {}
 	override function consumeString(s:String):String return s;
 }
 
+/**
+	Standard Float consumer. Produces Haxe Float values from JSON number.
+
+	There's only a single instance of `FloatConsumer`, available via `FloatConsumer.instance`.
+**/
 class FloatConsumer extends BaseConsumer<Float, Void, Void> {
 	public static final instance = new FloatConsumer();
 	function new() {}
 	override function consumeNumber(n:String):Float return Std.parseFloat(n);
 }
 
+/**
+	Standard Int consumer. Produces Haxe Int values from JSON number.
+
+	Throws an exception if the JSON number is not parseable as Int.
+
+	There's only a single instance of `IntConsumer`, available via `IntConsumer.instance`.
+**/
 class IntConsumer extends BaseConsumer<Int, Void, Void> {
 	public static final instance = new IntConsumer();
 	function new() {}
@@ -117,41 +139,94 @@ class Int64Consumer extends BaseConsumer<haxe.Int64, Void, Void> {
 	}
 }
 
+/**
+	Nullable value consumer. Produces `null` from JSON null and delegates other values consumption
+	to a `Consumer` instance specified in the constructor.
+**/
 class NullConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<Null<TResult>, TArrayContext, TObjectContext> {
 	final consumer:Consumer<TResult, TArrayContext, TObjectContext>;
 
+	/**
+		Create a nullable value consumer using the given `consumer` for parsing non-null JSON values.
+	**/
 	public function new(consumer) {
 		this.consumer = consumer;
 	}
 
+	/** Delegate processing to the consumer given to the constructor **/
 	public function consumeString(s:String):Null<TResult> return consumer.consumeString(s);
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function consumeNumber(n:String):Null<TResult> return consumer.consumeNumber(n);
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function consumeBool(b:Bool):Null<TResult> return consumer.consumeBool(b);
+
+	/** Produce the `null` value from JSON null **/
 	public function consumeNull():Null<TResult> return null;
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function consumeArray():TArrayContext return consumer.consumeArray();
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function addArrayElement(context:TArrayContext, parser:Parser):Void consumer.addArrayElement(context, parser);
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function finalizeArray(context:TArrayContext):TResult return consumer.finalizeArray(context);
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function consumeObject():TObjectContext return consumer.consumeObject();
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void consumer.addObjectField(context, name, parser);
+
+	/** Delegate processing to the consumer given to the constructor **/
 	public function finalizeObject(context:TObjectContext):TResult return consumer.finalizeObject(context);
+
 }
 
+/**
+	`haxe.ds.Option` consumer. Produces `None` from JSON null, delegates other values consumption
+	to a `Consumer` instance specified in the constructor while wrapping the result in `Some`.
+**/
 class OptionConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<Option<TResult>, TArrayContext, TObjectContext> {
 	final consumer:Consumer<TResult, TArrayContext, TObjectContext>;
 
+	/**
+		Create a `haxe.ds.Option` consumer using the given `consumer` for parsing non-null JSON values.
+	**/
 	public function new(consumer) {
 		this.consumer = consumer;
 	}
 
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function consumeString(s:String):Option<TResult> return Some(consumer.consumeString(s));
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function consumeNumber(n:String):Option<TResult> return Some(consumer.consumeNumber(n));
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function consumeBool(b:Bool):Option<TResult> return Some(consumer.consumeBool(b));
+
+	/** Produce `None` value from JSON null **/
 	public function consumeNull():Option<TResult> return None;
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function consumeArray():TArrayContext return consumer.consumeArray();
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function addArrayElement(context:TArrayContext, parser:Parser):Void consumer.addArrayElement(context, parser);
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function finalizeArray(context:TArrayContext):Option<TResult> return Some(consumer.finalizeArray(context));
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function consumeObject():TObjectContext return consumer.consumeObject();
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void consumer.addObjectField(context, name, parser);
+
+	/** Delegate processing to the consumer given to the constructor and wrap the result in `Some` **/
 	public function finalizeObject(context:TObjectContext):Option<TResult> return Some(consumer.finalizeObject(context));
 }
 
