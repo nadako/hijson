@@ -2,7 +2,10 @@ package hijson;
 
 class Parser {
 	public static inline function parse<TResult, TArrayContext, TObjectContext>(jsonString:String, consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
-		return new Parser(jsonString).doParse(consumer);
+		var parser = new Parser(jsonString);
+		var result = parser.parseValue(consumer);
+		parser.ensureNoTrailingCharacters();
+		return result;
 	}
 
 	var str:String;
@@ -13,8 +16,7 @@ class Parser {
 		this.pos = 0;
 	}
 
-	function doParse<TResult, TArrayContext, TObjectContext>(consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
-		var result = parseValue(consumer);
+	function ensureNoTrailingCharacters() {
 		var c;
 		while (!StringTools.isEof(c = nextChar())) {
 			switch (c) {
@@ -24,7 +26,6 @@ class Parser {
 					invalidChar();
 			}
 		}
-		return result;
 	}
 
 	public function parseValue<TResult, TArrayContext, TObjectContext>(consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
