@@ -67,14 +67,19 @@ class TestBaseConsumer extends utest.Test {
 		equals(1, IntConsumer.instance.consumeNumber("1"));
 		// TODO:
 		// raises("Unexpected non-integer number", () -> IntConsumer.instance.consumeNumber("1.5"));
+		raises("Unexpected non-integer number", () -> IntConsumer.instance.consumeNumber("47244640255")); // outside of 32-bit range
 		raises("Unexpected null", () -> IntConsumer.instance.consumeNull());
 	}
 
 	function testInt64Consumer() {
 		var testValue = haxe.Int64.make(10,0xFFFFFFFF);
 		isTrue(Int64Consumer.instance.consumeNumber("47244640255") == testValue);
-		// TODO:
-		// raises("Unexpected non-integer number", () -> IntConsumer.instance.consumeNumber("1.5"));
+
+		// TODO: we gotta catch the Int64.parseString exceptions and throw our own
+		raises("NumberFormatError", () -> Int64Consumer.instance.consumeNumber("1.5"));
+		raises("NumberFormatError: Overflow", () -> Int64Consumer.instance.consumeNumber("9223372036854775808"));
+		raises("NumberFormatError: Underflow", () -> Int64Consumer.instance.consumeNumber("-9223372036854775809"));
+
 		raises("Unexpected null", () -> Int64Consumer.instance.consumeNull());
 	}
 
