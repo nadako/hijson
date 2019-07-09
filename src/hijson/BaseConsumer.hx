@@ -7,43 +7,69 @@ import haxe.ds.IntMap;
 
 import hijson.Consumer;
 
+/**
+	A convenient base class for implementing consumers.
+
+	Implementation of every method throws an "Unexpected <JSON value type>" exception.
+	The methods can then be overriden in a subclass to support parsing needed JSON values.
+**/
 class BaseConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<TResult, TArrayContext, TObjectContext> {
+	/** Complain about unexpected string **/
 	public function consumeString(s:String):TResult {
 		throw "Unexpected string";
 	}
 
+	/** Complain about unexpected number **/
 	public function consumeNumber(n:String):TResult {
 		throw "Unexpected number";
 	}
 
+	/** Complain about unexpected boolean **/
 	public function consumeBool(b:Bool):TResult {
 		throw "Unexpected boolean";
 	}
 
+	/** Complain about unexpected null **/
 	public function consumeNull():TResult {
 		throw "Unexpected null";
 	}
 
+	/**
+		Complain about unexpected array.
+
+		Note that when overriding this method, you MUST also override
+		`addArrayElement` and `finalizeArray` methods.
+	**/
 	public function consumeArray():TArrayContext {
 		throw "Unexpected array";
 	}
 
+	/** Complain about being unimplemented, see `BaseConsumer.consumeArray` **/
 	public function addArrayElement(context:TArrayContext, parser:Parser):Void {
 		throw "Not implemented";
 	}
 
+	/** Complain about being unimplemented, see `BaseConsumer.consumeArray` **/
 	public function finalizeArray(context:TArrayContext):TResult {
 		throw "Not implemented";
 	}
 
+	/**
+		Complain about unexpected object.
+
+		Note that when overriding this method, you MUST also override
+		`addObjectField` and `finalizeObject` methods.
+	**/
 	public function consumeObject():TObjectContext {
 		throw "Unexpected object";
 	}
 
+	/** Complain about being unimplemented, see `BaseConsumer.consumeObject` **/
 	public function addObjectField(context:TObjectContext, name:String, parser:Parser):Void {
 		throw "Not implemented";
 	}
 
+	/** Complain about being unimplemented, see `BaseConsumer.consumeObject` **/
 	public function finalizeObject(context:TObjectContext):TResult {
 		throw "Not implemented";
 	}
