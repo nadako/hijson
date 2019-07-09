@@ -7,8 +7,8 @@ package hijson;
 
 	It has three type parameters:
 	 - `TResult` - the type of the result, produced by this consumer
-	 - `TArrayContext` - information about the parsed JSON array
-	 - `TObjectContext` - information about the parsed JSON object
+	 - `TArrayContext` - JSON array parsing context (see `Consumer.consumeArray`)
+	 - `TObjectContext` - JSON object parsing context (see `Consumer.consumeObject`)
 **/
 interface Consumer<TResult, TArrayContext, TObjectContext> {
 	/**
