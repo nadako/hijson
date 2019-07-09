@@ -230,9 +230,17 @@ class OptionConsumer<TResult, TArrayContext, TObjectContext> implements Consumer
 	public function finalizeObject(context:TObjectContext):Option<TResult> return Some(consumer.finalizeObject(context));
 }
 
+/**
+	Standard Array consumer. Produces Haxe `Array` values from JSON arrays,
+	using the `Consumer` given to its constructor for parsing array elements.
+**/
 class ArrayConsumer<TElement, TElementArrayContext, TElementObjectContext> extends BaseConsumer<Array<TElement>, Array<TElement>, Void> {
 	final elementConsumer:Consumer<TElement, TElementArrayContext, TElementObjectContext>;
 
+	/**
+		Create a new `Array` consumer.
+		The given `elementConsumer` will be used for parsing JSON array elements.
+	**/
 	public function new(elementConsumer) {
 		this.elementConsumer = elementConsumer;
 	}
@@ -250,9 +258,17 @@ class ArrayConsumer<TElement, TElementArrayContext, TElementObjectContext> exten
 	}
 }
 
+/**
+	`haxe.DynamicAccess` consumer. Produces Haxe anonymous structures from JSON objects,
+	using the `Consumer` given to its constructor for parsing object field values.
+**/
 class DynamicAccessConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<DynamicAccess<TValue>, Void, DynamicAccess<TValue>> {
 	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
+	/**
+		Create a new `haxe.DynamicAccess` consumer.
+		The given `valueConsumer` will be used for parsing JSON object field values.
+	**/
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
@@ -270,9 +286,17 @@ class DynamicAccessConsumer<TValue, TValueArrayContext, TValueObjectContext> ext
 	}
 }
 
+/**
+	`haxe.ds.StringMap` consumer. Produces StringMap from JSON objects,
+	using the `Consumer` given to its constructor for parsing field values.
+**/
 class StringMapConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<StringMap<TValue>, Void, StringMap<TValue>> {
 	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
+	/**
+		Create a new `haxe.ds.StringMap` consumer.
+		The given `valueConsumer` will be used for parsing JSON object field values.
+	**/
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
@@ -290,9 +314,19 @@ class StringMapConsumer<TValue, TValueArrayContext, TValueObjectContext> extends
 	}
 }
 
+/**
+	`haxe.ds.IntMap` consumer. Produces IntMap from JSON objects, parsing field names
+	as `Int` and using the `Consumer` given to its constructor for parsing field values.
+
+	Throws an exception if the field name cannot be parsed as `Int`.
+**/
 class IntMapConsumer<TValue, TValueArrayContext, TValueObjectContext> extends BaseConsumer<IntMap<TValue>, Void, IntMap<TValue>> {
 	final valueConsumer:Consumer<TValue, TValueArrayContext, TValueObjectContext>;
 
+	/**
+		Create a new `haxe.ds.IntMap` consumer.
+		The given `valueConsumer` will be used for parsing JSON object field values.
+	**/
 	public function new(valueConsumer) {
 		this.valueConsumer = valueConsumer;
 	}
