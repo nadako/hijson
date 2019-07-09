@@ -70,6 +70,14 @@ class TestBaseConsumer extends utest.Test {
 		raises("Unexpected null", () -> IntConsumer.instance.consumeNull());
 	}
 
+	function testInt64Consumer() {
+		var testValue = haxe.Int64.make(10,0xFFFFFFFF);
+		isTrue(Int64Consumer.instance.consumeNumber("47244640255") == testValue);
+		// TODO:
+		// raises("Unexpected non-integer number", () -> IntConsumer.instance.consumeNumber("1.5"));
+		raises("Unexpected null", () -> Int64Consumer.instance.consumeNull());
+	}
+
 	function testNullConsumer() {
 		var consumer = new NullConsumer(IntConsumer.instance);
 		equals(1, consumer.consumeNumber("1"));

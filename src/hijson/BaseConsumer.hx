@@ -104,6 +104,19 @@ class IntConsumer extends BaseConsumer<Int, Void, Void> {
 	}
 }
 
+/**
+	Int64 consumer. Produces `haxe.Int64` values from JSON number.
+
+	There's only a single instance of `Int64Consumer`, available via `Int64Consumer.instance`.
+**/
+class Int64Consumer extends BaseConsumer<haxe.Int64, Void, Void> {
+	public static final instance = new Int64Consumer();
+	function new() {}
+	override function consumeNumber(n:String):haxe.Int64 {
+		return haxe.Int64.parseString(n);
+	}
+}
+
 class NullConsumer<TResult, TArrayContext, TObjectContext> implements Consumer<Null<TResult>, TArrayContext, TObjectContext> {
 	final consumer:Consumer<TResult, TArrayContext, TObjectContext>;
 
