@@ -2,10 +2,11 @@ package hijson;
 
 /**
 	A JSON consumer that takes a parsed JSON value and
-	produces desired Haxe value out of it. An `Consumer` instance
+	produces desired Haxe value out of it. A `Consumer` instance
 	has to be passed to the `Parser` methods.
 
 	It has three type parameters:
+
 	 - `TResult` - the type of the result, produced by this consumer
 	 - `TArrayContext` - JSON array parsing context (see `Consumer.consumeArray`)
 	 - `TObjectContext` - JSON object parsing context (see `Consumer.consumeObject`)
