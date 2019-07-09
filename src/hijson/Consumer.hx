@@ -47,7 +47,7 @@ interface Consumer<TResult, TArrayContext, TObjectContext> {
 		Add an array element. This is called when parser is about to parse the next array element.
 
 		The `context` is the value returned by the `consumeArray` method.
-		This method MUST call `parser.parseValue` with some `Consumer` instance and can use its
+		This method MUST call `parser.parseValue` ONCE with some `Consumer` instance and can use its
 		return value to modify the `context` (e.g. push the value to the Array).
 	**/
 	function addArrayElement(context:TArrayContext, parser:Parser):Void;
@@ -72,7 +72,7 @@ interface Consumer<TResult, TArrayContext, TObjectContext> {
 		Add an object field. This is called when parser is about to parse the next object field.
 
 		The `context` is the value returned by the `consumeObject` method.
-		This method MUST call `parser.parseValue` with some `Consumer` instance and can use its
+		This method MUST call `parser.parseValue` ONCE with some `Consumer` instance and can use its
 		return value to modify the `context` (e.g. store the value in an object field).
 	**/
 	function addObjectField(context:TObjectContext, name:String, parser:Parser):Void;

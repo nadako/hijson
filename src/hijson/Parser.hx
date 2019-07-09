@@ -1,6 +1,17 @@
 package hijson;
 
+/**
+	The actual JSON parser. See `Parser.parse` method.
+**/
 class Parser {
+	/**
+		Parse given `jsonString` using given `consumer` for producing actual values.
+
+		The parser will call `Consumer` methods corresponding to the values encountered in the JSON string.
+		See `Consumer` interface documentation for the details.
+
+		Example usage: `var obj = hijson.Parser.parse('{"field": 42}', hijson.DynamicConsumer.instance)`.
+	**/
 	public static inline function parse<TResult, TArrayContext, TObjectContext>(jsonString:String, consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
 		var parser = new Parser(jsonString);
 		var result = parser.parseValue(consumer);
@@ -28,6 +39,11 @@ class Parser {
 		}
 	}
 
+	/**
+		Parse the next value in the JSON data using given `consumer` to produce the value.
+
+		This method is meant to be used from within `Consumer.addArrayElement` and `Consumer.addObjectField` fields.
+	**/
 	public function parseValue<TResult, TArrayContext, TObjectContext>(consumer:Consumer<TResult, TArrayContext, TObjectContext>):TResult {
 		while (true) {
 			var c = nextChar();
